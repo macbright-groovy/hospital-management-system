@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Prescription Details{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Prescription Details -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="h4 mb-0">Prescription Details</h2>
+                    <span class="badge bg-{{ prescription.status|lower }}">
+                        {{ prescription.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="text-muted mb-3">Patient Information</h5>
+                            <p class="mb-1">
+                                <strong>Name:</strong>
+                                {% if user.role == 'DOCTOR' %}
+                                <a href="{% url 'patients:patient_detail' prescription.patient.pk %}">
+                                    {{ prescription.patient.get_full_name }}
+                                </a>
+                                {% else %}
+                                {{ prescription.patient.get_full_name }}
+                                {% endif %}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Date of Birth:</strong>
+                                {{ prescription.patient.date_of_birth|date:"F d, Y" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-muted mb-3">Doctor Information</h5>
+                            <p class="mb-1">
+                                <strong>Name:</strong>
+                                {% if user.role == 'PATIENT' %}
+                                <a href="{% url 'doctors:doctor_detail' prescription.doctor.pk %}">
+                                    {{ prescription.doctor.get_full_name }}
+                                </a>
+                                {% else %}
+                                {{ prescription.doctor.get_full_name }}
+                                {% endif %}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Specialty:</strong>
+                                {{ prescription.doctor.specialty }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-muted mb-3">Medication Information</h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ prescription.medication.name }}</h5>
+                                    {% if prescription.medication.generic_name %}
+                                    <h6 class="card-subtitle mb-2 text-muted">
+                                        Generic: {{ prescription.medication.generic_name }}
+                                    </h6>
+                                    {% endif %}
+                                    <p class="card-text">{{ prescription.medication.description }}</p>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span class="badge bg-info">{{ prescription.medication.dosage_forms }}</span>
+                                        <span class="badge bg-secondary">{{ prescription.medication.strength }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-muted mb-3">Prescription Details</h5>
+                            <p class="mb-1">
+                                <strong>Dosage:</strong> {{ prescription.dosage }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Frequency:</strong> {{ prescription.frequency }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Duration:</strong> {{ prescription.duration }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Instructions:</strong> {{ prescription.instructions }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-muted mb-3">Dates</h5>
+                            <p class="mb-1">
+                                <strong>Prescribed On:</strong>
+                                {{ prescription.created_at|date:"F d, Y" }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Valid Until:</strong>
+                                {{ prescription.valid_until|date:"F d, Y" }}
+                            </p>
+                            {% if prescription.status == 'COMPLETED' %}
+                            <p class="mb-1">
+                                <strong>Completed On:</strong>
+                                {{ prescription.completed_at|date:"F d, Y" }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'prescriptions:prescription_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                        <div class="btn-group">
+                            {% if user.role == 'DOCTOR' and prescription.status == 'ACTIVE' %}
+                            <a href="{% url 'prescriptions:prescription_update' prescription.pk %}" 
+                               class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Update Status
+                            </a>
+                            {% endif %}
+                            {% if user.role == 'PATIENT' and prescription.status == 'ACTIVE' %}
+                            <a href="{% url 'prescriptions:prescription_refill_request' prescription.pk %}" 
+                               class="btn btn-warning">
+                                <i class="fas fa-sync"></i> Request Refill
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Refill History -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">Refill History</h3>
+                </div>
+                <div class="card-body">
+                    {% if refills %}
+                    <div class="list-group list-group-flush">
+                        {% for refill in refills %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-{{ refill.status|lower }}">
+                                    {{ refill.get_status_display }}
+                                </span>
+                                <small class="text-muted">
+                                    {{ refill.created_at|date:"M d, Y" }}
+                                </small>
+                            </div>
+                            {% if refill.notes %}
+                            <p class="mb-0 small">{{ refill.notes }}</p>
+                            {% endif %}
+                            {% if user.role == 'DOCTOR' and refill.status == 'PENDING' %}
+                            <div class="mt-2">
+                                <a href="{% url 'prescriptions:prescription_refill_update' refill.pk %}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-check"></i> Process Request
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mb-0">
+                        No refill requests have been made for this prescription.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .badge.bg-active { background-color: #28a745; }
+    .badge.bg-completed { background-color: #17a2b8; }
+    .badge.bg-cancelled { background-color: #dc3545; }
+    .badge.bg-expired { background-color: #6c757d; }
+    .badge.bg-pending { background-color: #ffc107; }
+    .badge.bg-approved { background-color: #28a745; }
+    .badge.bg-rejected { background-color: #dc3545; }
+</style>
+{% endblock %} 

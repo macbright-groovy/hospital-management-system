@@ -1,0 +1,90 @@
+{% extends 'doctors/base_doctor.html' %}
+
+{% block doctor_content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Welcome, Dr. {{ user.get_full_name }}</h2>
+            <p class="text-muted">Manage your schedules and specialties from your dashboard.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Upcoming Schedules -->
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Upcoming Schedules</h5>
+                    <a href="{% url 'doctors:schedule_create' %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Add Schedule
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if schedules %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time Slot</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for schedule in schedules %}
+                                        <tr>
+                                            <td>{{ schedule.schedule_date }}</td>
+                                            <td>{{ schedule.get_time_slot_display }}</td>
+                                            <td>
+                                                <a href="{% url 'doctors:schedule_update' schedule.pk %}" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'doctors:schedule_delete' schedule.pk %}" 
+                                                   class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No upcoming schedules. Add your availability to start accepting appointments.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Specialties -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Your Specialties</h5>
+                    <a href="{% url 'doctors:specialty_create' %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Add Specialty
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if specialties %}
+                        <ul class="list-group list-group-flush">
+                            {% for specialty in specialties %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ specialty.name }}
+                                    <a href="{% url 'doctors:specialty_delete' specialty.pk %}" 
+                                       class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No specialties added yet. Add your medical specialties to help patients find you.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

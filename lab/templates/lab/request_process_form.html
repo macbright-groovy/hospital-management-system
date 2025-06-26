@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Process Lab Test Request{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-cogs"></i> Process Lab Test Request
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Request Summary -->
+                    <div class="alert alert-info">
+                        <h5>Request Summary</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Patient:</strong> {{ request_obj.patient.get_full_name|default:request_obj.patient.username }}<br>
+                                <strong>Test:</strong> {{ request_obj.test.name }}<br>
+                                <strong>Requested Date:</strong> {{ request_obj.requested_date|date:"F d, Y" }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Requested Time:</strong> {{ request_obj.requested_time|time:"H:i" }}<br>
+                                <strong>Created:</strong> {{ request_obj.created_at|date:"F d, Y H:i" }}<br>
+                                <strong>Price:</strong> ${{ request_obj.test.price }}
+                            </div>
+                        </div>
+                        <hr>
+                        <strong>Reason:</strong><br>
+                        {{ request_obj.reason|linebreaks }}
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.status|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Note:</strong> 
+                                    <div id="status-note">
+                                        If you reject this request, please provide a reason in the notes field.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                {{ form.notes|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <!-- Test Result Fields (shown when status is APPROVED) -->
+                        <div id="result-fields" style="display: none;">
+                            <hr>
+                            <h5><i class="fas fa-microscope"></i> Test Results</h5>
+                            <div class="alert alert-success">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Approval Mode:</strong> You can now upload the test results immediately.
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    {{ form.test_result|as_crispy_field }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form.result_notes|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.result_file|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'lab:request_detail' request_obj.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Request
+                            </a>
+                            <div>
+                                <button type="submit" name="action" value="approve" class="btn btn-success me-2">
+                                    <i class="fas fa-check"></i> Approve & Upload Results
+                                </button>
+                                <button type="submit" name="action" value="reject" class="btn btn-danger">
+                                    <i class="fas fa-times"></i> Reject Request
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.getElementById('id_status');
+    const notesField = document.getElementById('id_notes');
+    const resultFields = document.getElementById('result-fields');
+    const statusNote = document.getElementById('status-note');
+    const rejectBtn = document.querySelector('button[value="reject"]');
+    const approveBtn = document.querySelector('button[value="approve"]');
+    
+    function updateForm() {
+        const status = statusSelect.value;
+        
+        if (status === 'REJECTED') {
+            notesField.setAttribute('required', 'required');
+            notesField.classList.add('is-invalid');
+            resultFields.style.display = 'none';
+            statusNote.innerHTML = 'If you reject this request, please provide a reason in the notes field.';
+        } else if (status === 'APPROVED') {
+            notesField.removeAttribute('required');
+            notesField.classList.remove('is-invalid');
+            resultFields.style.display = 'block';
+            statusNote.innerHTML = 'You can now upload test results immediately.';
+        } else {
+            notesField.removeAttribute('required');
+            notesField.classList.remove('is-invalid');
+            resultFields.style.display = 'none';
+            statusNote.innerHTML = 'If you reject this request, please provide a reason in the notes field.';
+        }
+    }
+    
+    statusSelect.addEventListener('change', updateForm);
+    
+    rejectBtn.addEventListener('click', function(e) {
+        statusSelect.value = 'REJECTED';
+        updateForm();
+    });
+    
+    approveBtn.addEventListener('click', function(e) {
+        statusSelect.value = 'APPROVED';
+        updateForm();
+    });
+    
+    updateForm();
+});
+</script>
+{% endblock %} 

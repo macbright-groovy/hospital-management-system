@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% block title %}Lab Attendant Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">
+        <i class="fas fa-flask"></i> Lab Attendant Dashboard
+    </h2>
+    
+    <!-- Pending Lab Test Requests -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-clock"></i> Pending Lab Test Requests
+                <span class="badge bg-warning ms-2">{{ pending_requests.count }}</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if pending_requests %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Patient</th>
+                                <th>Test</th>
+                                <th>Requested Date</th>
+                                <th>Requested Time</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in pending_requests %}
+                            <tr>
+                                <td>{{ request.patient.get_full_name|default:request.patient.username }}</td>
+                                <td>
+                                    <strong>{{ request.test.name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ request.test.description|truncatewords:8 }}</small>
+                                </td>
+                                <td>{{ request.requested_date|date:"M d, Y" }}</td>
+                                <td>{{ request.requested_time|time:"H:i" }}</td>
+                                <td>{{ request.created_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'lab:request_detail' request.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="{% url 'lab:request_process' request.pk %}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-check"></i> Process
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-end">
+                    <a href="{% url 'lab:request_list' %}" class="btn btn-primary">
+                        <i class="fas fa-list"></i> View All Requests
+                    </a>
+                </div>
+            {% else %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> No pending lab test requests. All caught up!
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Pending Lab Results -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-microscope"></i> Pending Lab Results
+                <span class="badge bg-info ms-2">{{ pending_results.count }}</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if pending_results %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Patient</th>
+                                <th>Test</th>
+                                <th>Date Ordered</th>
+                                <th>Priority</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in pending_results %}
+                            <tr>
+                                <td>{{ result.patient.get_full_name|default:result.patient.username }}</td>
+                                <td>
+                                    <strong>{{ result.test.name }}</strong>
+                                    {% if result.is_urgent %}
+                                        <span class="badge bg-danger ms-1">Urgent</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ result.date_ordered|date:"M d, Y" }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ result.priority }}</span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'lab:result_detail' result.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="{% url 'lab:upload_lab_result' result.pk %}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-upload"></i> Upload Result
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-end">
+                    <a href="{% url 'lab:result_list' %}" class="btn btn-primary">
+                        <i class="fas fa-list"></i> View All Results
+                    </a>
+                </div>
+            {% else %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> No pending lab results. All tests completed!
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'lab:request_list' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-list"></i> View All Requests
+                        </a>
+                        <a href="{% url 'lab:result_list' %}" class="btn btn-outline-info">
+                            <i class="fas fa-microscope"></i> View All Results
+                        </a>
+                        <a href="{% url 'lab:test_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-flask"></i> Manage Tests
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-warning">{{ pending_requests.count }}</h4>
+                            <small class="text-muted">Pending Requests</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-info">{{ pending_results.count }}</h4>
+                            <small class="text-muted">Pending Results</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

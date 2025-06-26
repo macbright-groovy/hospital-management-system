@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load security_filters %}
+
+{% block title %}Profile - Healthcare App{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-4">
+            <!-- Profile Card -->
+            <div class="card shadow mb-4">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-circle fa-5x text-primary"></i>
+                    </div>
+                    <h3 class="h5 mb-1">{{ user.get_full_name|safe_output }}</h3>
+                    <p class="text-muted mb-3">{{ user.get_role_display|safe_output }}</p>
+                    <div class="d-grid">
+                        <a href="{% url 'users:logout' %}" class="btn btn-outline-danger">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Info Card -->
+            <div class="card shadow">
+                <div class="card-header">
+                    <h4 class="h6 mb-0">Quick Information</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            {{ user.email|safe_output }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-user text-primary me-2"></i>
+                            {{ user.username|safe_output }}
+                        </li>
+                        {% if user.role == 'PATIENT' %}
+                        <li class="mb-2">
+                            <i class="fas fa-birthday-cake text-primary me-2"></i>
+                            {{ user.patient_profile.date_of_birth|date:"F d, Y"|default:"Not set"|safe_output }}
+                        </li>
+                        {% elif user.role == 'DOCTOR' %}
+                        <li class="mb-2">
+                            <i class="fas fa-stethoscope text-primary me-2"></i>
+                            {{ user.doctor_profile.specialty|default:"Not set"|safe_output }}
+                        </li>
+                        {% elif user.role == 'LAB_ATTENDANT' %}
+                        <li class="mb-2">
+                            <i class="fas fa-flask text-primary me-2"></i>
+                            {{ user.lab_attendant_profile.lab_name|default:"Not set"|safe_output }}
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <!-- Profile Update Form -->
+            <div class="card shadow">
+                <div class="card-header">
+                    <h2 class="h4 mb-0">Update Profile</h2>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message|safe_output }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error|safe_output }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.first_name.errors %}
+                                        {{ error|safe_output }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.last_name.errors %}
+                                        {{ error|safe_output }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.email.errors %}
+                                    {{ error|safe_output }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Role-specific fields -->
+                        {% if user.role == 'PATIENT' %}
+                        <div class="mb-3">
+                            <label for="date_of_birth" class="form-label">Date of Birth</label>
+                            <input type="date" name="date_of_birth" id="date_of_birth" 
+                                   class="form-control" value="{{ form.initial.date_of_birth|date:'Y-m-d' }}">
+                        </div>
+                        {% elif user.role == 'DOCTOR' %}
+                        <div class="mb-3">
+                            <label for="specialty" class="form-label">Specialty</label>
+                            <input type="text" name="specialty" id="specialty" class="form-control" 
+                                   value="{{ form.initial.specialty|safe_output }}" 
+                                   placeholder="e.g., Cardiology, Pediatrics, etc.">
+                        </div>
+                        {% elif user.role == 'LAB_ATTENDANT' %}
+                        <div class="mb-3">
+                            <label for="lab_name" class="form-label">Lab Name</label>
+                            <input type="text" name="lab_name" id="lab_name" class="form-control" 
+                                   value="{{ form.initial.lab_name|safe_output }}" 
+                                   placeholder="Name of your laboratory">
+                        </div>
+                        {% endif %}
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add Bootstrap classes to form fields
+        const formFields = document.querySelectorAll('input[type="text"], input[type="email"], input[type="date"]');
+        formFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Request Prescription Refill{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="h4 mb-0">Request Prescription Refill</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Prescription Summary -->
+                    <div class="alert alert-info mb-4">
+                        <h5 class="alert-heading">Prescription Details</h5>
+                        <p class="mb-1">
+                            <strong>Medication:</strong> {{ prescription.medication.name }}
+                        </p>
+                        <p class="mb-1">
+                            <strong>Current Dosage:</strong> {{ prescription.dosage }} - {{ prescription.frequency }}
+                        </p>
+                        <p class="mb-0">
+                            <strong>Valid Until:</strong> {{ prescription.valid_until|date:"F d, Y" }}
+                        </p>
+                    </div>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">Additional Notes</label>
+                            {{ form.notes }}
+                            <div class="form-text">
+                                Please provide any relevant information about your refill request, such as:
+                                <ul class="mb-0">
+                                    <li>Reason for the refill request</li>
+                                    <li>Any changes in your condition</li>
+                                    <li>Any side effects you've experienced</li>
+                                </ul>
+                            </div>
+                            {% if form.notes.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.notes.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'prescriptions:prescription_detail' prescription.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Prescription
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Submit Refill Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add Bootstrap classes to form fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const formFields = document.querySelectorAll('textarea');
+        formFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %} 

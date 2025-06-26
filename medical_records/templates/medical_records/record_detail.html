@@ -1,0 +1,51 @@
+{% extends 'medical_records/base_record.html' %}
+
+{% block record_content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Medical Record Details</h5>
+                    <span class="badge bg-primary">{{ record.get_record_type_display }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Date:</strong> {{ record.date|date:"F d, Y" }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Patient:</strong> {{ record.patient.get_full_name }}
+                    </div>
+                    {% if record.doctor %}
+                        <div class="mb-3">
+                            <strong>Doctor:</strong> Dr. {{ record.doctor.get_full_name }}
+                        </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <strong>Description:</strong>
+                        <p class="mb-0">{{ record.description }}</p>
+                    </div>
+                    {% if record.file %}
+                        <div class="mb-3">
+                            <strong>File:</strong>
+                            <a href="{{ record.file.url }}" class="btn btn-outline-info btn-sm" download>
+                                <i class="fas fa-file-download"></i> Download Attachment
+                            </a>
+                        </div>
+                    {% endif %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'medical_records:record_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                        {% if user_role == 'DOCTOR' %}
+                            <a href="{% url 'medical_records:record_update' record.pk %}" class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Edit Record
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

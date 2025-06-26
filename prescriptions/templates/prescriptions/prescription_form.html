@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if form.instance.pk %}Update{% else %}New{% endif %} Prescription
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="h4 mb-0">
+                        {% if form.instance.pk %}
+                            Update Prescription
+                        {% else %}
+                            Create New Prescription
+                        {% endif %}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if not form.instance.pk %}
+                        <div class="mb-3">
+                            <label for="{{ form.patient.id_for_label }}" class="form-label">Patient</label>
+                            {{ form.patient }}
+                            {% if form.patient.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.patient.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.medication.id_for_label }}" class="form-label">Medication</label>
+                            {{ form.medication }}
+                            {% if form.medication.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.medication.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.dosage.id_for_label }}" class="form-label">Dosage</label>
+                                {{ form.dosage }}
+                                {% if form.dosage.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.dosage.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.frequency.id_for_label }}" class="form-label">Frequency</label>
+                                {{ form.frequency }}
+                                {% if form.frequency.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.frequency.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.duration.id_for_label }}" class="form-label">Duration (days)</label>
+                                {{ form.duration }}
+                                {% if form.duration.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.duration.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label">Start Date</label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.start_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.refills_remaining.id_for_label }}" class="form-label">Refills Remaining</label>
+                                {{ form.refills_remaining }}
+                                {% if form.refills_remaining.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.refills_remaining.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.priority.id_for_label }}" class="form-label">Priority (1-5)</label>
+                                {{ form.priority }}
+                                {% if form.priority.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.priority.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.instructions.id_for_label }}" class="form-label">Instructions</label>
+                            {{ form.instructions }}
+                            {% if form.instructions.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.instructions.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">Additional Notes</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.notes.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_urgent }}
+                                <label class="form-check-label" for="{{ form.is_urgent.id_for_label }}">
+                                    Mark as Urgent
+                                </label>
+                            </div>
+                        </div>
+
+                        {% if form.instance.pk %}
+                        <div class="mb-3">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.status.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'prescriptions:prescription_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to List
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Prescription
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add Bootstrap classes to form fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const formFields = document.querySelectorAll('input[type="text"], input[type="number"], textarea, select');
+        formFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+        
+        // Initialize select2 for patient and medication fields if they exist
+        const patientSelect = document.querySelector('#{{ form.patient.id_for_label }}');
+        const medicationSelect = document.querySelector('#{{ form.medication.id_for_label }}');
+        
+        if (patientSelect) {
+            $(patientSelect).select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Select a patient...'
+            });
+        }
+        
+        if (medicationSelect) {
+            $(medicationSelect).select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Select a medication...'
+            });
+        }
+    });
+</script>
+{% endblock %} 

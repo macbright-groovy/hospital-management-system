@@ -1,0 +1,140 @@
+{% extends 'appointments/base_appointment.html' %}
+
+{% block appointment_content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Today's Schedule</h2>
+            <p class="text-muted">{{ today|date:"F d, Y" }}</p>
+        </div>
+    </div>
+
+    <!-- Today's Appointments -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Today's Appointments</h5>
+                </div>
+                <div class="card-body">
+                    {% if today_appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Patient</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in today_appointments %}
+                                        <tr>
+                                            <td>{{ appointment.time|time:"g:i A" }}</td>
+                                            <td>
+                                                {{ appointment.patient.get_full_name }}
+                                                <br>
+                                                <small class="text-muted">{{ appointment.patient.email }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge status-badge status-{{ appointment.status|lower }}">
+                                                    {{ appointment.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{% url 'appointments:appointment_detail' appointment.pk %}" 
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+                                                    {% if appointment.status == 'PENDING' %}
+                                                        <a href="{% url 'appointments:appointment_cancel' appointment.pk %}" 
+                                                           class="btn btn-sm btn-outline-danger">
+                                                            <i class="fas fa-times"></i> Cancel
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No appointments scheduled for today.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Appointments -->
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Upcoming Appointments</h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Patient</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in upcoming_appointments %}
+                                        <tr>
+                                            <td>{{ appointment.date|date:"M d, Y" }}</td>
+                                            <td>{{ appointment.time|time:"g:i A" }}</td>
+                                            <td>
+                                                {{ appointment.patient.get_full_name }}
+                                                <br>
+                                                <small class="text-muted">{{ appointment.patient.email }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge status-badge status-{{ appointment.status|lower }}">
+                                                    {{ appointment.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{% url 'appointments:appointment_detail' appointment.pk %}" 
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+                                                    {% if appointment.status == 'PENDING' %}
+                                                        <a href="{% url 'appointments:appointment_cancel' appointment.pk %}" 
+                                                           class="btn btn-sm btn-outline-danger">
+                                                            <i class="fas fa-times"></i> Cancel
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No upcoming appointments scheduled.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

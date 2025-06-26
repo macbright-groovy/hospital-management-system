@@ -1,0 +1,156 @@
+{% extends 'appointments/base_appointment.html' %}
+
+{% block appointment_content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Appointment Details Card -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Appointment Details</h5>
+                    <span class="badge status-badge status-{{ appointment.status|lower }}">
+                        {{ appointment.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Date & Time</h6>
+                            <p class="mb-0">
+                                <i class="fas fa-calendar-alt text-primary"></i>
+                                {{ appointment.date|date:"F d, Y" }}
+                            </p>
+                            <p class="mb-0">
+                                <i class="fas fa-clock text-primary"></i>
+                                {{ appointment.time|time:"g:i A" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">
+                                {% if user.role == 'PATIENT' %}
+                                    Doctor
+                                {% else %}
+                                    Patient
+                                {% endif %}
+                            </h6>
+                            <p class="mb-0">
+                                <i class="fas fa-user-md text-primary"></i>
+                                {% if user.role == 'PATIENT' %}
+                                    Dr. {{ appointment.doctor.get_full_name }}
+                                {% else %}
+                                    {{ appointment.patient.get_full_name }}
+                                {% endif %}
+                            </p>
+                            <p class="mb-0">
+                                <i class="fas fa-envelope text-primary"></i>
+                                {% if user.role == 'PATIENT' %}
+                                    {{ appointment.doctor.email }}
+                                {% else %}
+                                    {{ appointment.patient.email }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if appointment.notes %}
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-2">Notes</h6>
+                            <p class="mb-0">{{ appointment.notes }}</p>
+                        </div>
+                    {% endif %}
+
+                    {% if appointment.status == 'CANCELLED' and appointment.doctor_message and user.role == 'PATIENT' %}
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-2">Message from Doctor</h6>
+                            <div class="alert alert-info">{{ appointment.doctor_message }}</div>
+                        </div>
+                    {% endif %}
+
+                    {% if appointment.status not in 'CANCELLED,COMPLETED' and user.role == 'DOCTOR' %}
+                        <div class="mt-4">
+                            <h6 class="text-muted mb-3">Update Appointment Status</h6>
+                            <form method="post">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Update Status
+                                    </button>
+                                </div>
+                            </form>
+                            <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                var statusField = document.getElementById('id_status');
+                                var messageField = document.querySelector('#id_doctor_message').parentElement;
+                                
+                                function toggleMessageField() {
+                                    if (statusField.value === 'CANCELLED') {
+                                        messageField.style.display = '';
+                                    } else {
+                                        messageField.style.display = 'none';
+                                        document.getElementById('id_doctor_message').value = '';
+                                    }
+                                }
+
+                                if (statusField && messageField) {
+                                    // Hide on load if not 'CANCELLED'
+                                    toggleMessageField();
+                                    // Add event listener
+                                    statusField.addEventListener('change', toggleMessageField);
+                                }
+                            });
+                            </script>
+                        </div>
+                    {% elif user.role == 'PATIENT' and appointment.status not in 'CANCELLED,COMPLETED' %}
+                         <div class="d-flex justify-content-end">
+                            <a href="{% url 'appointments:appointment_cancel' appointment.pk %}" 
+                               class="btn btn-outline-danger">
+                                <i class="fas fa-times"></i> Cancel Appointment
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Additional Information Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Important Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        {% if appointment.status == 'PENDING' %}
+                            <li class="mb-2">
+                                <i class="fas fa-info-circle text-warning"></i>
+                                This appointment is pending confirmation from the doctor.
+                            </li>
+                        {% elif appointment.status == 'CONFIRMED' %}
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success"></i>
+                                This appointment has been confirmed. Please arrive 10-15 minutes before the scheduled time.
+                            </li>
+                        {% elif appointment.status == 'CANCELLED' %}
+                            <li class="mb-2">
+                                <i class="fas fa-times-circle text-danger"></i>
+                                This appointment has been cancelled.
+                            </li>
+                        {% elif appointment.status == 'COMPLETED' %}
+                            <li class="mb-2">
+                                <i class="fas fa-check-double text-success"></i>
+                                This appointment has been completed.
+                            </li>
+                        {% endif %}
+                        
+                        {% if appointment.status not in 'CANCELLED,COMPLETED' %}
+                            <li>
+                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                You can cancel this appointment up to 24 hours before the scheduled time.
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

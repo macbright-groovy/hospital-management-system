@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Medical Records - Healthcare System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h2 class="mb-4">
+                <i class="fas fa-file-medical me-2"></i>Medical Records
+            </h2>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'doctors:medical_record_create' %}" class="btn btn-success">
+                <i class="fas fa-plus me-1"></i> Add Medical Record
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            {% if medical_records %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Patient</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in medical_records %}
+                                <tr>
+                                    <td>{{ record.date }}</td>
+                                    <td>
+                                        <a href="{% url 'doctors:patient_detail' record.patient.id %}" class="text-decoration-none">
+                                            {{ record.patient.get_full_name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ record.get_record_type_display }}</td>
+                                    <td>{{ record.description|truncatewords:20 }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'doctors:medical_record_update' record.id %}" class="btn btn-sm btn-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if record.file %}
+                                                <a href="{{ record.file.url }}" class="btn btn-sm btn-info" title="View File" target="_blank">
+                                                    <i class="fas fa-file-medical"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No medical records found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

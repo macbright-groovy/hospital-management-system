@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'appointment_list' %}active{% endif %}" 
+                           href="{% url 'appointments:appointment_list' %}">
+                            <i class="fas fa-calendar-check"></i> My Appointments
+                        </a>
+                    </li>
+                    {% if user.role == 'PATIENT' %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'appointment_book' %}active{% endif %}" 
+                               href="{% url 'appointments:appointment_book' %}">
+                                <i class="fas fa-plus-circle"></i> Book Appointment
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if user.role == 'DOCTOR' %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'doctor_schedule' %}active{% endif %}" 
+                               href="{% url 'appointments:doctor_schedule' %}">
+                                <i class="fas fa-calendar-day"></i> Today's Schedule
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block appointment_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    }
+
+    .sidebar .nav-link {
+        font-weight: 500;
+        color: #333;
+        padding: 0.5rem 1rem;
+    }
+
+    .sidebar .nav-link.active {
+        color: #2470dc;
+    }
+
+    .sidebar .nav-link:hover {
+        color: #2470dc;
+    }
+
+    .sidebar .nav-link i {
+        margin-right: 0.5rem;
+    }
+
+    main {
+        padding-top: 1.5rem;
+    }
+
+    .status-badge {
+        font-size: 0.875rem;
+        padding: 0.35em 0.65em;
+    }
+
+    .status-pending { background-color: #ffc107; color: #000; }
+    .status-confirmed { background-color: #28a745; color: #fff; }
+    .status-cancelled { background-color: #dc3545; color: #fff; }
+    .status-completed { background-color: #17a2b8; color: #fff; }
+</style>
+{% endblock %} 

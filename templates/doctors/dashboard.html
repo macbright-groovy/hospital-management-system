@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% block title %}Doctor Dashboard - Healthcare System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-4">
+                <i class="fas fa-user-md me-2"></i>Doctor Dashboard
+            </h2>
+        </div>
+    </div>
+
+    <!-- Today's Appointments -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-day me-2"></i>Today's Appointments
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if today_appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Patient</th>
+                                        <th>Purpose</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in today_appointments %}
+                                        <tr>
+                                            <td>{{ appointment.time }}</td>
+                                            <td>
+                                                <a href="{% url 'doctors:patient_detail' appointment.patient.id %}" class="text-decoration-none">
+                                                    {{ appointment.patient.user.get_full_name }}
+                                                </a>
+                                            </td>
+                                            <td>{{ appointment.purpose }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ appointment.status|lower }}">
+                                                    {{ appointment.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'doctors:appointment_detail' appointment.id %}" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No appointments scheduled for today.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Upcoming Appointments -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Upcoming Appointments
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_appointments %}
+                        <div class="list-group">
+                            {% for appointment in upcoming_appointments %}
+                                <a href="{% url 'doctors:appointment_detail' appointment.id %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ appointment.patient.user.get_full_name }}</h6>
+                                        <small>{{ appointment.date|date:"M d, Y" }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ appointment.purpose }}</p>
+                                    <small class="text-muted">{{ appointment.time }}</small>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No upcoming appointments.</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'doctors:appointment_list' %}" class="btn btn-info btn-sm">
+                        <i class="fas fa-list me-1"></i>View All Appointments
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Patients -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>Recent Patients
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_patients %}
+                        <div class="list-group">
+                            {% for patient in recent_patients %}
+                                <a href="{% url 'doctors:patient_detail' patient.id %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ patient.user.get_full_name }}</h6>
+                                        <small>{{ patient.user.email }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ patient.medical_history|truncatewords:20 }}</p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No recent patients.</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'doctors:patient_list' %}" class="btn btn-success btn-sm">
+                        <i class="fas fa-list me-1"></i>View All Patients
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col">
+            <div class="card shadow">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Schedule Management -->
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <a href="{% url 'doctors:manage_schedule' %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-calendar-alt me-2"></i>Manage Schedule
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Patient Management -->
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <a href="{% url 'doctors:patient_list' %}" class="btn btn-outline-success">
+                                    <i class="fas fa-users me-2"></i>Manage Patients
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Medical Records -->
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <a href="{% url 'doctors:medical_record_list' %}" class="btn btn-outline-info">
+                                    <i class="fas fa-file-medical me-2"></i>Medical Records
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Lab Results -->
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <a href="{% url 'doctors:lab_results' %}" class="btn btn-outline-warning">
+                                    <i class="fas fa-vial me-2"></i>Lab Results
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Prescriptions -->
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <a href="{% url 'doctors:prescription_list' %}" class="btn btn-outline-danger">
+                                    <i class="fas fa-prescription me-2"></i>Prescriptions
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Appointments -->
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <a href="{% url 'doctors:appointment_list' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-calendar-check me-2"></i>Appointments
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Profile -->
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <a href="{% url 'doctors:profile_update' %}" class="btn btn-outline-dark">
+                                    <i class="fas fa-user-edit me-2"></i>Update Profile
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Specialties -->
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <a href="{% url 'doctors:specialty_list' %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-stethoscope me-2"></i>Specialties
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

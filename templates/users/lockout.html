@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Locked{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Account Locked</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Your account has been temporarily locked due to multiple failed login attempts.</p>
+                    <p>For security reasons, you'll need to wait {{ cooloff_time }} hour(s) before trying again.</p>
+                    <p>If you believe this is an error or need immediate assistance, please contact the system administrator.</p>
+                    <div class="mt-4">
+                        <a href="{% url 'home' %}" class="btn btn-primary">Return to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

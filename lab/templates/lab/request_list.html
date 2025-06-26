@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Lab Test Requests{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Lab Test Requests</h2>
+                {% if can_request_tests %}
+                    <a href="{% url 'lab:request_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Request New Test
+                    </a>
+                {% endif %}
+            </div>
+
+            {% if requests %}
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Test</th>
+                                        <th>Requested Date</th>
+                                        <th>Requested Time</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for request in requests %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ request.test.name }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ request.test.description|truncatewords:10 }}</small>
+                                        </td>
+                                        <td>{{ request.requested_date|date:"M d, Y" }}</td>
+                                        <td>{{ request.requested_time|time:"H:i" }}</td>
+                                        <td>
+                                            <span class="badge {% if request.status == 'PENDING' %}bg-warning{% elif request.status == 'APPROVED' %}bg-success{% elif request.status == 'REJECTED' %}bg-danger{% elif request.status == 'COMPLETED' %}bg-info{% else %}bg-secondary{% endif %}">
+                                                {{ request.status }}
+                                            </span>
+                                        </td>
+                                        <td>{{ request.created_at|date:"M d, Y H:i" }}</td>
+                                        <td>
+                                            <a href="{% url 'lab:request_detail' request.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                            {% if can_process_requests and request.status == 'PENDING' %}
+                                                <a href="{% url 'lab:request_process' request.pk %}" class="btn btn-sm btn-outline-success">
+                                                    <i class="fas fa-check"></i> Process
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if requests.has_other_pages %}
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if requests.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ requests.previous_page_number }}">Previous</a>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in requests.paginator.page_range %}
+                                    {% if requests.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > requests.number|add:'-3' and num < requests.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if requests.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ requests.next_page_number }}">Next</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    {% if can_request_tests %}
+                        No lab test requests found. 
+                        <a href="{% url 'lab:request_create' %}" class="alert-link">Request your first test</a>.
+                    {% else %}
+                        No pending lab test requests found.
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

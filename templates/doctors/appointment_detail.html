@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Appointment Details - {{ appointment.patient.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow mt-5">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Appointment Details</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Patient</dt>
+                        <dd class="col-sm-8">{{ appointment.patient.get_full_name|default:appointment.patient.username }}</dd>
+                        <dt class="col-sm-4">Date</dt>
+                        <dd class="col-sm-8">{{ appointment.date|date:"M d, Y" }}</dd>
+                        <dt class="col-sm-4">Time</dt>
+                        <dd class="col-sm-8">{{ appointment.time }}</dd>
+                    </dl>
+
+                    <hr>
+
+                    {% if appointment.status not in 'CANCELLED,COMPLETED' %}
+                        <div>
+                            <h5 class="mb-3">Update Status</h5>
+                            <form method="post">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <button type="submit" class="btn btn-primary mt-2 float-end">
+                                    <i class="fas fa-save"></i> Update
+                                </button>
+                            </form>
+                            <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                var statusField = document.getElementById('id_status');
+                                var messageField = document.querySelector('#id_doctor_message').parentElement;
+                                
+                                function toggleMessageField() {
+                                    if (statusField.value === 'CANCELLED') {
+                                        messageField.style.display = '';
+                                    } else {
+                                        messageField.style.display = 'none';
+                                        document.getElementById('id_doctor_message').value = '';
+                                    }
+                                }
+
+                                if (statusField && messageField) {
+                                    toggleMessageField();
+                                    statusField.addEventListener('change', toggleMessageField);
+                                }
+                            });
+                            </script>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">No actions are available for this appointment.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

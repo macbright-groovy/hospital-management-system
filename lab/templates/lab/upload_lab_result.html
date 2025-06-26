@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Upload Lab Result{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Upload Lab Result for {{ lab_result.patient.get_full_name|default:lab_result.patient.username }}</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Upload Result</button>
+    </form>
+</div>
+{% endblock %} 

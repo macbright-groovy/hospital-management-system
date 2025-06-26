@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Lab Test{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="h4 mb-0">Order New Lab Test</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.patient.id_for_label }}" class="form-label">Patient</label>
+                            {{ form.patient }}
+                            {% if form.patient.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.patient.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.test.id_for_label }}" class="form-label">Test</label>
+                            {{ form.test }}
+                            {% if form.test.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.test.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    {{ form.is_urgent }}
+                                    <label class="form-check-label" for="{{ form.is_urgent.id_for_label }}">
+                                        Urgent Test
+                                    </label>
+                                </div>
+                                {% if form.is_urgent.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.is_urgent.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.priority.id_for_label }}" class="form-label">Priority Level</label>
+                                {{ form.priority }}
+                                {% if form.priority.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.priority.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    1 (Lowest) to 5 (Highest)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">Notes</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.notes.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Add any specific instructions or notes for the lab attendant.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'lab:result_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to List
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Order Test
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add Bootstrap classes to form fields
+    document.querySelectorAll('select, input[type="number"]').forEach(element => {
+        element.classList.add('form-select');
+    });
+    document.querySelectorAll('textarea').forEach(element => {
+        element.classList.add('form-control');
+    });
+    document.querySelectorAll('input[type="checkbox"]').forEach(element => {
+        element.classList.remove('form-select');
+        element.classList.add('form-check-input');
+    });
+
+    // Update priority field class
+    document.querySelector('#{{ form.priority.id_for_label }}').classList.remove('form-select');
+    document.querySelector('#{{ form.priority.id_for_label }}').classList.add('form-control');
+</script>
+{% endblock %} 

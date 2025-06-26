@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lab Result Details{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="h4 mb-0">Lab Result Details</h2>
+                    {% if can_update and result.status != 'COMPLETED' %}
+                    <a href="{% url 'lab:result_update' result.pk %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-edit"></i> Update Result
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="card-title">Test Information</h5>
+                            <p class="mb-1"><strong>Test:</strong> {{ result.test.name }}</p>
+                            <p class="mb-1"><strong>Patient:</strong> {{ result.patient.get_full_name|default:result.patient.username }}</p>
+                            {% if result.doctor %}
+                            <p class="mb-1"><strong>Doctor:</strong> {{ result.doctor.get_full_name|default:result.doctor.username }}</p>
+                            {% endif %}
+                            {% if result.lab_attendant %}
+                            <p class="mb-1"><strong>Lab Attendant:</strong> {{ result.lab_attendant.get_full_name|default:result.lab_attendant.username }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="card-title">Status Information</h5>
+                            <p class="mb-1">
+                                <strong>Status:</strong>
+                                <span class="badge {% if result.status == 'PENDING' %}bg-warning{% elif result.status == 'IN_PROGRESS' %}bg-info{% elif result.status == 'COMPLETED' %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {{ result.get_status_display }}
+                                </span>
+                            </p>
+                            <p class="mb-1"><strong>Ordered:</strong> {{ result.date_ordered|date:"M d, Y H:i" }}</p>
+                            {% if result.date_completed %}
+                            <p class="mb-1"><strong>Completed:</strong> {{ result.date_completed|date:"M d, Y H:i" }}</p>
+                            {% endif %}
+                            <p class="mb-1">
+                                <strong>Priority:</strong>
+                                <span class="badge {% if result.priority == 1 %}bg-success{% elif result.priority == 2 %}bg-info{% elif result.priority == 3 %}bg-warning{% elif result.priority == 4 %}bg-orange{% else %}bg-danger{% endif %}">
+                                    {{ result.priority }}
+                                </span>
+                            </p>
+                            {% if result.is_urgent %}
+                            <p class="mb-1"><span class="badge bg-danger">Urgent</span></p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if result.notes %}
+                    <div class="mb-4">
+                        <h5 class="card-title">Notes</h5>
+                        <p class="text-muted mb-0">{{ result.notes }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if result.result %}
+                    <div class="mb-4">
+                        <h5 class="card-title">Test Result</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                {{ result.result|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if result.file %}
+                    <div class="mb-4">
+                        <h5 class="card-title">Result File</h5>
+                        <a href="{{ result.file.url }}" class="btn btn-outline-primary" target="_blank">
+                            <i class="fas fa-file"></i> View Result File
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <a href="{% url 'lab:result_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Patient Dashboard - Healthcare System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-4">
+                <i class="fas fa-user-circle me-2"></i>Welcome, {{ user.get_full_name }}
+            </h2>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'patients:doctor_list' %}" class="btn btn-info">
+                <i class="fas fa-user-md me-1"></i> View Doctors & Specialties
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Profile Information</h5>
+                    <p class="card-text">
+                        <strong>Name:</strong> {{ user.get_full_name }}<br>
+                        <strong>Email:</strong> {{ user.email }}<br>
+                        <strong>Date of Birth:</strong> {{ user.patient_profile.date_of_birth|date:"F j, Y" }}
+                    </p>
+                    <a href="{% url 'patients:profile' %}" class="btn btn-primary">Update Profile</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'patients:medical_history_list' %}" class="btn btn-outline-primary btn-block">
+                                View Medical History
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'appointments:appointment_book' %}" class="btn btn-outline-success btn-block">
+                                Book Appointment
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'prescriptions:prescription_list' %}" class="btn btn-outline-info btn-block">
+                                View Prescriptions
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'lab:test_list' %}" class="btn btn-outline-warning btn-block">
+                                View Lab Tests
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'lab:request_create' %}" class="btn btn-outline-danger btn-block">
+                                <i class="fas fa-flask"></i> Request Lab Test
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'lab:request_list' %}" class="btn btn-outline-secondary btn-block">
+                                <i class="fas fa-list"></i> My Lab Requests
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Activity</h5>
+                    
+                    <!-- Lab Test Results -->
+                    {% if lab_results %}
+                        <h6><i class="fas fa-microscope"></i> Recent Lab Test Results</h6>
+                        <div class="list-group mb-3">
+                            {% for result in lab_results|slice:":3" %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <strong>{{ result.test.name }}</strong><br>
+                                            <small class="text-muted">
+                                                Completed: {{ result.date_completed|date:"F j, Y" }}<br>
+                                                {% if result.lab_attendant %}
+                                                    By: {{ result.lab_attendant.get_full_name|default:result.lab_attendant.username }}
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                        <a href="{% url 'lab:result_detail' result.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </div>
+                                    {% if result.result %}
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <strong>Result:</strong> {{ result.result|truncatewords:20 }}
+                                            </small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if lab_results.count > 3 %}
+                            <div class="text-center mb-3">
+                                <a href="{% url 'lab:patient_lab_results' %}" class="btn btn-sm btn-outline-info">
+                                    View All Results ({{ lab_results.count }})
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- Lab Test Requests -->
+                    {% if lab_requests %}
+                        <h6><i class="fas fa-clock"></i> Recent Lab Test Requests</h6>
+                        <div class="list-group mb-3">
+                            {% for request in lab_requests %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <strong>{{ request.test.name }}</strong><br>
+                                            <small class="text-muted">
+                                                Requested: {{ request.requested_date|date:"F j, Y" }} at {{ request.requested_time|time:"H:i" }}<br>
+                                                Status: 
+                                                <span class="badge {% if request.status == 'PENDING' %}bg-warning{% elif request.status == 'APPROVED' %}bg-success{% elif request.status == 'REJECTED' %}bg-danger{% elif request.status == 'COMPLETED' %}bg-info{% else %}bg-secondary{% endif %}">
+                                                    {{ request.status }}
+                                                </span>
+                                            </small>
+                                        </div>
+                                        <a href="{% url 'lab:request_detail' request.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mb-3">
+                            <a href="{% url 'lab:request_list' %}" class="btn btn-sm btn-outline-secondary">
+                                View All Requests
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    {% if recent_appointments %}
+                        <h6>Upcoming Appointments</h6>
+                        <ul class="list-group mb-3">
+                            {% for appointment in recent_appointments %}
+                                <li class="list-group-item">
+                                    <strong>{{ appointment.date|date:"F j, Y" }}</strong> at {{ appointment.time|time:"g:i A" }}<br>
+                                    Doctor: {{ appointment.doctor.get_full_name }}<br>
+                                    Status: <span class="badge badge-{{ appointment.status|lower }}">{{ appointment.get_status_display }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    {% if recent_prescriptions %}
+                        <h6>Recent Prescriptions</h6>
+                        <ul class="list-group">
+                            {% for prescription in recent_prescriptions %}
+                                <li class="list-group-item">
+                                    <strong>{{ prescription.medication.name }}</strong><br>
+                                    Prescribed by: {{ prescription.doctor.get_full_name }}<br>
+                                    Date: {{ prescription.created_at|date:"F j, Y" }}<br>
+                                    Status: <span class="badge badge-{{ prescription.status|lower }}">{{ prescription.get_status_display }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    {% if not lab_results and not lab_requests and not recent_appointments and not recent_prescriptions %}
+                        <p class="text-muted">No recent activity to display.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block title %}My Lab Results{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-microscope"></i> My Lab Results
+                </h2>
+                <a href="{% url 'lab:request_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Request New Test
+                </a>
+            </div>
+
+            {% if lab_results %}
+                <div class="row">
+                    {% for result in lab_results %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">{{ result.test.name }}</h5>
+                                    <span class="badge bg-success">Completed</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <strong>Test:</strong><br>
+                                        <span class="text-muted">{{ result.test.name }}</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Completed:</strong><br>
+                                        <span class="text-muted">{{ result.date_completed|date:"M d, Y" }}</span>
+                                    </div>
+                                </div>
+                                
+                                {% if result.lab_attendant %}
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <strong>Processed By:</strong><br>
+                                        <span class="text-muted">{{ result.lab_attendant.get_full_name|default:result.lab_attendant.username }}</span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if result.result %}
+                                <div class="mb-3">
+                                    <strong>Results:</strong>
+                                    <div class="alert alert-light mt-2">
+                                        {{ result.result|linebreaks }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if result.notes %}
+                                <div class="mb-3">
+                                    <strong>Notes:</strong>
+                                    <div class="alert alert-info mt-2">
+                                        {{ result.notes|linebreaks }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if result.file %}
+                                <div class="mb-3">
+                                    <strong>Attached File:</strong><br>
+                                    <a href="{{ result.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="fas fa-download"></i> Download {{ result.file.name|slice:"-4:" }}
+                                    </a>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="text-end">
+                                    <a href="{% url 'lab:result_detail' result.pk %}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination if needed -->
+                {% if lab_results.has_other_pages %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if lab_results.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ lab_results.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in lab_results.paginator.page_range %}
+                            {% if lab_results.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > lab_results.number|add:'-3' and num < lab_results.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if lab_results.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ lab_results.next_page_number }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>No lab results found.</strong><br>
+                    You haven't completed any lab tests yet. 
+                    <a href="{% url 'lab:request_create' %}" class="alert-link">Request your first lab test</a>.
+                </div>
+            {% endif %}
+            
+            <div class="mt-4">
+                <a href="{% url 'lab:request_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-list"></i> View My Lab Requests
+                </a>
+                <a href="{% url 'patients:dashboard' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

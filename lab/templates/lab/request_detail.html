@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Lab Test Request Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-flask"></i> Lab Test Request Details
+                        </h3>
+                        <span class="badge {% if request_obj.status == 'PENDING' %}bg-warning{% elif request_obj.status == 'APPROVED' %}bg-success{% elif request_obj.status == 'REJECTED' %}bg-danger{% elif request_obj.status == 'COMPLETED' %}bg-info{% else %}bg-secondary{% endif %} fs-6">
+                            {{ request_obj.status }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Test Information</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Test Name:</strong></td>
+                                    <td>{{ request_obj.test.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Description:</strong></td>
+                                    <td>{{ request_obj.test.description }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Price:</strong></td>
+                                    <td>${{ request_obj.test.price }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Turnaround Time:</strong></td>
+                                    <td>{{ request_obj.test.turnaround_time }} hours</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Request Details</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Patient:</strong></td>
+                                    <td>{{ request_obj.patient.get_full_name|default:request_obj.patient.username }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Requested Date:</strong></td>
+                                    <td>{{ request_obj.requested_date|date:"F d, Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Requested Time:</strong></td>
+                                    <td>{{ request_obj.requested_time|time:"H:i" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Created:</strong></td>
+                                    <td>{{ request_obj.created_at|date:"F d, Y H:i" }}</td>
+                                </tr>
+                                {% if request_obj.processed_by %}
+                                <tr>
+                                    <td><strong>Processed By:</strong></td>
+                                    <td>{{ request_obj.processed_by.get_full_name|default:request_obj.processed_by.username }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Processed At:</strong></td>
+                                    <td>{{ request_obj.processed_at|date:"F d, Y H:i" }}</td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>Reason for Request</h5>
+                            <div class="alert alert-light">
+                                {{ request_obj.reason|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if request_obj.notes %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>Lab Attendant Notes</h5>
+                            <div class="alert alert-info">
+                                {{ request_obj.notes|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if request_obj.lab_results.all %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>Test Results</h5>
+                            {% for result in request_obj.lab_results.all %}
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">Test Result</h6>
+                                            <span class="badge {% if result.status == 'PENDING' %}bg-warning{% elif result.status == 'IN_PROGRESS' %}bg-info{% elif result.status == 'COMPLETED' %}bg-success{% else %}bg-secondary{% endif %}">
+                                                {{ result.status }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if result.result %}
+                                            <h6>Results:</h6>
+                                            <div class="alert alert-light">
+                                                {{ result.result|linebreaks }}
+                                            </div>
+                                        {% endif %}
+                                        
+                                        {% if result.notes %}
+                                            <h6>Notes:</h6>
+                                            <div class="alert alert-info">
+                                                {{ result.notes|linebreaks }}
+                                            </div>
+                                        {% endif %}
+                                        
+                                        {% if result.file %}
+                                            <h6>Attached File:</h6>
+                                            <a href="{{ result.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                                <i class="fas fa-download"></i> Download {{ result.file.name|slice:"-4:" }}
+                                            </a>
+                                        {% endif %}
+                                        
+                                        <div class="mt-3">
+                                            <small class="text-muted">
+                                                <strong>Completed:</strong> {{ result.date_completed|date:"F d, Y H:i"|default:"Not completed" }}
+                                                {% if result.lab_attendant %}
+                                                    <br><strong>By:</strong> {{ result.lab_attendant.get_full_name|default:result.lab_attendant.username }}
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'lab:request_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Requests
+                        </a>
+                        {% if can_process %}
+                            <a href="{% url 'lab:request_process' request_obj.pk %}" class="btn btn-success">
+                                <i class="fas fa-check"></i> Process Request
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

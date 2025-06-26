@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}Welcome - Healthcare System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row align-items-center py-5">
+        <div class="col-md-6">
+            <h1 class="display-4 mb-4">Welcome to Healthcare System</h1>
+            <p class="lead mb-4">Your trusted partner in healthcare management. We provide comprehensive solutions for patients, doctors, and healthcare professionals.</p>
+            {% if not user.is_authenticated %}
+            <div class="d-grid gap-2 d-md-flex">
+                <a href="{% url 'login' %}" class="btn btn-primary btn-lg me-md-2">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+                <a href="{% url 'register' %}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Register
+                </a>
+            </div>
+            {% else %}
+            <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+            </a>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <img src="https://via.placeholder.com/600x400" alt="Healthcare" class="img-fluid rounded shadow">
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row py-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="display-5">Our Features</h2>
+            <p class="lead text-muted">Comprehensive healthcare management solutions</p>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-md fa-3x text-primary mb-3"></i>
+                    <h3 class="h4">For Doctors</h3>
+                    <p class="text-muted">Manage appointments, patient records, and prescriptions efficiently.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user fa-3x text-primary mb-3"></i>
+                    <h3 class="h4">For Patients</h3>
+                    <p class="text-muted">Access your medical history, appointments, and test results easily.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-flask fa-3x text-primary mb-3"></i>
+                    <h3 class="h4">For Lab Attendants</h3>
+                    <p class="text-muted">Manage lab tests and results with our comprehensive system.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services Section -->
+    <div class="row py-5 bg-light rounded">
+        <div class="col-12 text-center mb-5">
+            <h2 class="display-5">Our Services</h2>
+            <p class="lead text-muted">Quality healthcare services at your fingertips</p>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="text-center">
+                <i class="fas fa-calendar-check fa-2x text-primary mb-3"></i>
+                <h4>Appointment Scheduling</h4>
+                <p class="text-muted">Easy online appointment booking</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="text-center">
+                <i class="fas fa-file-medical fa-2x text-primary mb-3"></i>
+                <h4>Medical Records</h4>
+                <p class="text-muted">Digital health records management</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="text-center">
+                <i class="fas fa-prescription fa-2x text-primary mb-3"></i>
+                <h4>E-Prescriptions</h4>
+                <p class="text-muted">Digital prescription management</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="text-center">
+                <i class="fas fa-vial fa-2x text-primary mb-3"></i>
+                <h4>Lab Results</h4>
+                <p class="text-muted">Online lab test results</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

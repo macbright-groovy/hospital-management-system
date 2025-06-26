@@ -1,0 +1,79 @@
+{% extends 'doctors/base_doctor.html' %}
+
+{% block doctor_content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Your Specialties</h2>
+                <a href="{% url 'doctors:specialty_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add New Specialty
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    {% if specialties %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Specialty</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for specialty in specialties %}
+                                        <tr>
+                                            <td>{{ specialty.specialty }}</td>
+                                            <td>
+                                                <a href="{% url 'doctors:specialty_delete' specialty.pk %}" 
+                                                   class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash"></i> Remove
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-stethoscope fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No specialties added yet. Add your medical specialties to help patients find you.</p>
+                            <a href="{% url 'doctors:specialty_create' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Your First Specialty
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">About Specialties</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Adding your medical specialties helps patients find you based on their needs. 
+                        You can add multiple specialties to your profile.
+                    </p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i>
+                            Common specialties include: Cardiology, Neurology, Pediatrics, Dermatology, 
+                            Orthopedics, Gynecology, etc.
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

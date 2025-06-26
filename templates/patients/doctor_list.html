@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Doctors & Specialties - Healthcare System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-4">
+                <i class="fas fa-user-md me-2"></i>Doctors & Specialties
+            </h2>
+        </div>
+    </div>
+    <div class="card shadow">
+        <div class="card-body">
+            {% if doctors %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Specialties</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doctor in doctors %}
+                                <tr>
+                                    <td>{{ doctor.user.get_full_name }}</td>
+                                    <td>{{ doctor.user.email }}</td>
+                                    <td>
+                                        {% for specialty in doctor.doctorspecialty_set.all %}
+                                            <span class="badge bg-info text-dark">{{ specialty.specialty }}</span>
+                                        {% empty %}
+                                            <span class="text-muted">No specialties listed</span>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No doctors found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

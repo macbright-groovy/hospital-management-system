@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Medical History - Healthcare System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4"><i class="fas fa-notes-medical me-2"></i>Medical History</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Patient-Entered History</h5>
+                </div>
+                <div class="card-body">
+                    {% if histories %}
+                        <ul class="list-group">
+                            {% for history in histories %}
+                                <li class="list-group-item">
+                                    <strong>{{ history.diagnosis_date|date:"F j, Y" }}</strong>: {{ history.diagnosis }}<br>
+                                    <em>Treatment:</em> {{ history.treatment }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No patient-entered medical history found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Doctor-Uploaded Medical Records</h5>
+                </div>
+                <div class="card-body">
+                    {% if medical_records %}
+                        <ul class="list-group">
+                            {% for record in medical_records %}
+                                <li class="list-group-item">
+                                    <strong>{{ record.date|date:"F j, Y" }}</strong>: {{ record.record_type }}<br>
+                                    <em>Description:</em> {{ record.description }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No doctor-uploaded medical records found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

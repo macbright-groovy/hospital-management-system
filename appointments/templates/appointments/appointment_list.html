@@ -1,0 +1,123 @@
+{% extends 'appointments/base_appointment.html' %}
+
+{% block appointment_content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>My Appointments</h2>
+                {% if user.role == 'PATIENT' %}
+                    <a href="{% url 'appointments:appointment_book' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Book New Appointment
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Filter Appointments</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            {{ filter_form.date_from.label_tag }}
+                            {{ filter_form.date_from }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ filter_form.date_to.label_tag }}
+                            {{ filter_form.date_to }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ filter_form.status.label_tag }}
+                            {{ filter_form.status }}
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments List -->
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    {% if appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        {% if user.role == 'PATIENT' %}
+                                            <th>Doctor</th>
+                                        {% else %}
+                                            <th>Patient</th>
+                                        {% endif %}
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in appointments %}
+                                        <tr>
+                                            <td>{{ appointment.date }}</td>
+                                            <td>{{ appointment.time|time:"g:i A" }}</td>
+                                            <td>
+                                                {% if user.role == 'PATIENT' %}
+                                                    Dr. {{ appointment.doctor.get_full_name }}
+                                                {% else %}
+                                                    {{ appointment.patient.get_full_name }}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge status-badge status-{{ appointment.status|lower }}">
+                                                    {{ appointment.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{% url 'appointments:appointment_detail' appointment.pk %}" 
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+                                                    {% if user.role == 'PATIENT' and appointment.status not in 'CANCELLED,COMPLETED' %}
+                                                        <a href="{% url 'appointments:appointment_cancel' appointment.pk %}" 
+                                                           class="btn btn-sm btn-outline-danger">
+                                                            <i class="fas fa-times"></i> Cancel
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No appointments found.</p>
+                            {% if user.role == 'PATIENT' %}
+                                <a href="{% url 'appointments:appointment_book' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Book Your First Appointment
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

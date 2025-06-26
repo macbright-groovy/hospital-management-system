@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Your Schedule{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Manage Your Schedule</h1>
+
+    {% include 'partials/messages.html' %}
+
+    <div class="row">
+        <!-- Weekly Schedule Column -->
+        <div class="col-md-7">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Your Weekly Schedule</h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">Set your recurring weekly working hours here. Add an entry for each day you work. You can update an existing day by simply submitting the form for that day again.</p>
+                    
+                    {% if schedules %}
+                        <ul class="list-group list-group-flush mb-4">
+                        {% for schedule in schedules %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ schedule.get_day_of_week_display }}</strong>: 
+                                    {% if schedule.is_available %}
+                                        {{ schedule.start_time|time:"g:i A" }} - {{ schedule.end_time|time:"g:i A" }}
+                                    {% else %}
+                                        <span class="text-danger">Unavailable</span>
+                                    {% endif %}
+                                </div>
+                                <!-- TODO: Add edit/delete functionality here -->
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="alert alert-info">You have not set up your weekly schedule yet.</div>
+                    {% endif %}
+
+                    <hr>
+                    
+                    <h5>Add or Update a Day</h5>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ schedule_form.as_p }}
+                        <button type="submit" name="submit_schedule" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Day
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Time Off Column -->
+        <div class="col-md-5">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h4 class="mb-0">Upcoming Time Off</h4>
+                </div>
+                <div class="card-body">
+                     {% if time_offs %}
+                        <ul class="list-group list-group-flush mb-4">
+                        {% for off in time_offs %}
+                            <li class="list-group-item">
+                                {{ off.start_datetime|date:"D, M d, Y, g:i A" }} - {{ off.end_datetime|date:"D, M d, Y, g:i A" }}
+                                <br>
+                                <small class="text-muted">{{ off.reason|default:"No reason provided" }}</small>
+                                <!-- TODO: Add delete functionality -->
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="alert alert-info">You have no upcoming time off scheduled.</div>
+                    {% endif %}
+
+                    <hr>
+
+                    <h5>Add Time Off</h5>
+                     <form method="post">
+                        {% csrf_token %}
+                        {{ timeoff_form.as_p }}
+                        <button type="submit" name="submit_timeoff" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Time Off
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load security_filters %}
+
+{% block title %}Register - Healthcare App{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header text-center">
+                    <h2 class="h4 mb-0">
+                        <i class="fas fa-user-plus text-primary me-2"></i>
+                        Create Your Account
+                    </h2>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message|safe_output }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error|safe_output }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.first_name.errors %}
+                                        {{ error|safe_output }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.last_name.errors %}
+                                        {{ error|safe_output }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email.errors %}
+                                        {{ error|safe_output }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.username.errors %}
+                                        {{ error|safe_output }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.role.id_for_label }}" class="form-label">Role</label>
+                            {{ form.role }}
+                            {% if form.role.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.role.errors %}
+                                    {{ error|safe_output }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Role-specific fields -->
+                        <div id="patient-fields" class="role-fields mb-4" style="display: none;">
+                            <h5 class="mb-3">Patient Information</h5>
+                            <div class="mb-3">
+                                <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                <input type="date" name="date_of_birth" id="date_of_birth" class="form-control">
+                            </div>
+                        </div>
+
+                        <div id="doctor-fields" class="role-fields mb-4" style="display: none;">
+                            <h5 class="mb-3">Doctor Information</h5>
+                            <div class="mb-3">
+                                <label for="specialty" class="form-label">Specialty</label>
+                                <input type="text" name="specialty" id="specialty" class="form-control" 
+                                       placeholder="e.g., Cardiology, Pediatrics, etc.">
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.license_number.id_for_label }}" class="form-label">License Number</label>
+                                {{ form.license_number }}
+                                {% if form.license_number.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.license_number.errors %}
+                                        {{ error|safe_output }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">{{ form.license_number.help_text|safe_output }}</div>
+                            </div>
+                        </div>
+
+                        <div id="lab-attendant-fields" class="role-fields mb-4" style="display: none;">
+                            <h5 class="mb-3">Lab Attendant Information</h5>
+                            <div class="mb-3">
+                                <label for="lab_name" class="form-label">Lab Name</label>
+                                <input type="text" name="lab_name" id="lab_name" class="form-control" 
+                                       placeholder="Name of your laboratory">
+                            </div>
+                        </div>
+
+                        <!-- Registration code field (conditional) -->
+                        <div id="registration-code-fields" class="role-fields mb-4" style="display: none;">
+                             <div class="mb-3">
+                                <label for="{{ form.registration_code.id_for_label }}" class="form-label">Registration Code</label>
+                                {{ form.registration_code }}
+                                {% if form.registration_code.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.registration_code.errors %}
+                                        {{ error|safe_output }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">{{ form.registration_code.help_text|safe_output }}</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password1.errors %}
+                                    {{ error|safe_output }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Your password must contain at least 8 characters and can't be entirely numeric.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password2.errors %}
+                                    {{ error|safe_output }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p class="mb-0">Already have an account? <a href="{% url 'users:login' %}">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add Bootstrap classes to form fields
+        const formFields = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"], input[type="date"], select');
+        formFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+
+        // Handle role-specific fields visibility
+        const roleSelect = document.querySelector('#{{ form.role.id_for_label }}');
+        const roleFields = document.querySelectorAll('.role-fields');
+
+        function updateRoleFields() {
+            const selectedRole = roleSelect.value;
+            
+            // Hide all role-specific sections first
+            roleFields.forEach(field => {
+                field.style.display = 'none';
+            });
+
+            // Show section for the selected role (e.g., 'patient-fields')
+            const selectedField = document.getElementById(`${selectedRole.toLowerCase().replace(/_/g, '-')}-fields`);
+            if (selectedField) {
+                selectedField.style.display = 'block';
+            }
+
+            // Separately handle the registration code visibility
+            const registrationCodeField = document.getElementById('registration-code-fields');
+            if (selectedRole === 'DOCTOR' || selectedRole === 'LAB_ATTENDANT') {
+                registrationCodeField.style.display = 'block';
+            } else {
+                registrationCodeField.style.display = 'none';
+            }
+        }
+
+        roleSelect.addEventListener('change', updateRoleFields);
+        updateRoleFields(); // Initial call to set correct visibility
+    });
+</script>
+{% endblock %} 
